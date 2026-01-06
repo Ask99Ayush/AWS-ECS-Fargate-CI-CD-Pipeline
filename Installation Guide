@@ -188,7 +188,7 @@ Step 7: Verify Deployment
 
 - Go to AWS ECS Console > Clusters > my-cluster
 - Check running services & tasks
-- Use ALB DNS Name to access the deployed service
+- Use ALB DNS Name to access the deployed service.
 
 ---
 
