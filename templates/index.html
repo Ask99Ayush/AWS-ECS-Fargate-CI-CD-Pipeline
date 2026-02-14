@@ -1,25 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flask App - CI/CD Showcase</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flask CI/CD Pipeline | DevOps Project</title>
+
+    <!-- Main Styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Meta for Showcase / SEO -->
+    <meta name="description" content="Production-ready Flask application deployed using automated CI/CD pipeline with Jenkins, Docker, and AWS ECS." />
 </head>
 <body>
     <div class="container">
-        <h1>🚀 Flask App - CI/CD Pipeline Showcase</h1>
-        <p>Explore the power of automation with Jenkins & AWS ECS!</p>
 
-        <a href="/api" class="btn" target="_blank">Check API Status</a>
+        <!-- Hero Section -->
+        <header class="hero">
+            <h1>Flask CI/CD Pipeline</h1>
+            <p class="subtitle">
+                End-to-end automated deployment using 
+                <strong>Jenkins · Docker · AWS ECS</strong>
+            </p>
+        </header>
 
-        <p>🌟 This project is part of the #DevOpsWithThalautiya 40 Real-World Project Challenge </p>
+        <!-- Main Content -->
+        <main class="content">
 
-        <a href="https://github.com/Kunalkthalautiya/Project-1-Automated-CI-CD-Pipeline-AWS-ECS.git" class="btn" target="_blank">View on GitHub →</a>
+            <div class="cta-group">
+                <a href="/api" class="btn btn-primary" target="_blank">
+                    View API Status
+                </a>
 
-        <footer>
-            Connect with me on <a href="https://www.linkedin.com/in/kunal-thalautiya-238a17242/" target="_blank">LinkedIn</a>..
-        </footer>
+                <a href="https://github.com/Kunalkthalautiya/Project-1-Automated-CI-CD-Pipeline-AWS-ECS.git"
+                   class="btn btn-secondary"
+                   target="_blank">
+                    View Source Code
+                </a>
+            </div>
+
+            <section class="description">
+                <p>
+                    This project demonstrates a <strong>production-grade CI/CD pipeline</strong>
+                    where every code commit triggers automated build, test, containerization,
+                    and deployment to AWS ECS with zero manual intervention.
+                </p>
+
+                <p class="tagline">
+                    Part of <span class="highlight">#DevOpsWithThalautiya</span> —
+                    40+ real-world DevOps & Cloud projects
+                </p>
+            </section>
+
+        </main>
+
+        <!-- Footer -->
+<footer class="footer">
+    <p class="footer-text">
+        Built & Maintained by
+        <a href="https://www.linkedin.com/in/kunal-thalautiya-238a17242/" target="_blank">
+            Kunal Thalautiya
+        </a>
+    </p>
+
+    <div class="social-links">
+        <a href="https://github.com/Kunalkthalautiya" target="_blank" aria-label="GitHub">
+            <i class="fab fa-github"></i>
+        </a>
+        <a href="https://www.linkedin.com/in/kunal-thalautiya-238a17242/" target="_blank" aria-label="LinkedIn">
+            <i class="fab fa-linkedin-in"></i>
+        </a>
+        <a href="https://www.instagram.com/kunalthalautiya/" target="_blank" aria-label="Instagram">
+            <i class="fab fa-instagram"></i>
+        </a>
+    </div>
+</footer>
+
     </div>
 </body>
 </html>

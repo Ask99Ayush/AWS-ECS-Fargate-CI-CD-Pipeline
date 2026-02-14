@@ -1,0 +1,72 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.env
+.env.*
+*.log
+
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv/
+
+
+# VS Code / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+
+# Flask / Django
+instance/
+*.sqlite3
+db.sqlite3
+*.db
+
+
+# Static & Media (optional)
+staticfiles/
+media/
+
+
+# Docker
+*.tar
+docker-compose.override.yml
+
+
+# Jenkins
+.jenkins/
+jenkins_home/
+
+
+# Logs & Reports
+logs/
+coverage/
+htmlcov/
+.coverage
+
+
+# Build / Dist
+build/
+dist/
+*.egg-info/
+
+
+# Secrets (IMPORTANT)
+*.pem
+*.key
+*.crt
+secrets/
+aws_credentials
+.env.aws
