@@ -450,10 +450,6 @@ Click **Update IAM role**.
 **Path:** EC2 → Instances → `jenkins-server` → Scroll to **IAM role** section
 - Verify `Jenkins-ECS-Role` is displayed
 
-```
-
----
-
 ### ⚠️ Common Mistakes in Step 2
 ❌ Forgetting to attach role to EC2 instance  
 ❌ Using IAM user keys instead of roles  
