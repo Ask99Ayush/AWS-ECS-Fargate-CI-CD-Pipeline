@@ -261,20 +261,7 @@ This project builds a fully automated deployment pipeline that:
 ## 7. High‑Level Architecture
 
 ```
-┌─────────┐     ┌─────────┐     ┌─────────┐     ┌─────────┐     ┌─────────┐
-│         │     │         │     │         │     │         │     │         │
-│ GitHub  │────▶│ Jenkins │────▶│ Docker  │────▶│   ECR   │────▶│   ECS   │
-│  (Code) │     │(Orche-  │     │ (Build  │     │ (Image  │     │(Fargate)│
-│         │     │ strator)│     │  Image) │     │ Storage)│     │         │
-└─────────┘     └─────────┘     └─────────┘     └─────────┘     └────┬────┘
-                                                                      │
-                                                                      ▼
-                                                              ┌─────────────┐
-                                                              │             │
-                                                              │     ALB     │◀──── Users
-                                                              │ (Load Bal-  │
-                                                              │   ancer)    │
-                                                              └─────────────┘
+![image](https://github.com/user-attachments/assets/612b1b18-7636-4d2b-aff6-cf5e971c2797)
 ```
 
 ---
@@ -400,49 +387,6 @@ Click **Launch Instance** and wait for creation.
 
 ---
 
-### METHOD 2: CLI IMPLEMENTATION (AWS CLI)
-
-#### Step 1.8: Define Environment Variables
-```bash
-export AWS_REGION=ap-south-1
-export AMI_ID=ami-0f5ee92e2d63afc18  # Ubuntu 22.04 LTS
-export INSTANCE_TYPE=t3.micro
-export KEY_NAME=jenkins-key
-export SECURITY_GROUP_ID=sg-xxxxxxxx
-export SUBNET_ID=subnet-xxxxxxxx
-export INSTANCE_NAME=jenkins-server
-```
-
-#### Step 1.9: Launch EC2 Using AWS CLI
-```bash
-aws ec2 run-instances \
-  --image-id $AMI_ID \
-  --instance-type $INSTANCE_TYPE \
-  --key-name $KEY_NAME \
-  --security-group-ids $SECURITY_GROUP_ID \
-  --subnet-id $SUBNET_ID \
-  --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$INSTANCE_NAME}]" \
-  --region $AWS_REGION
-```
-
-#### Step 1.10: Verify Instance via CLI
-```bash
-aws ec2 describe-instances \
-  --filters "Name=tag:Name,Values=$INSTANCE_NAME" \
-  --query "Reservations[*].Instances[*].[InstanceId,State.Name,PublicIpAddress]" \
-  --output table \
-  --region $AWS_REGION
-```
-
-**Expected output:**
-```
-| InstanceId       | State    | PublicIpAddress |
-|------------------|----------|-----------------|
-| i-1234567890abc  | running  | 54.123.45.67    |
-```
-
----
-
 ### ✅ Step 1 Summary
 By completing STEP 1, you now have:
 - ✅ A running EC2 instance named `jenkins-server`
@@ -516,82 +460,6 @@ Click **Update IAM role**.
 **Path:** EC2 → Instances → `jenkins-server` → Scroll to **IAM role** section
 - Verify `Jenkins-ECS-Role` is displayed
 
----
-
-### METHOD 2: CLI IMPLEMENTATION (AWS CLI)
-
-#### Step 2.7: Define Variables
-```bash
-export ROLE_NAME=Jenkins-ECS-Role
-export INSTANCE_PROFILE=Jenkins-ECS-Profile
-export INSTANCE_ID=i-1234567890abc  # Replace with your EC2 instance ID
-```
-
-#### Step 2.8: Create Trust Policy File
-Create a file named `trust.json`:
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-```
-
-#### Step 2.9: Create IAM Role
-```bash
-aws iam create-role \
-  --role-name $ROLE_NAME \
-  --assume-role-policy-document file://trust.json
-```
-
-#### Step 2.10: Attach Permission Policies
-```bash
-aws iam attach-role-policy \
-  --role-name $ROLE_NAME \
-  --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess
-
-aws iam attach-role-policy \
-  --role-name $ROLE_NAME \
-  --policy-arn arn:aws:iam::aws:policy/AmazonECS_FullAccess
-```
-
-#### Step 2.11: Create Instance Profile
-```bash
-aws iam create-instance-profile \
-  --instance-profile-name $INSTANCE_PROFILE
-
-aws iam add-role-to-instance-profile \
-  --instance-profile-name $INSTANCE_PROFILE \
-  --role-name $ROLE_NAME
-```
-
-#### Step 2.12: Attach Role to EC2 Instance
-```bash
-aws ec2 associate-iam-instance-profile \
-  --instance-id $INSTANCE_ID \
-  --iam-instance-profile Name=$INSTANCE_PROFILE
-```
-
-#### Step 2.13: Verify Role via CLI (Inside EC2)
-SSH into Jenkins EC2 and run:
-```bash
-aws sts get-caller-identity
-```
-
-**Expected output (ARN should contain Jenkins-ECS-Role):**
-```json
-{
-  "UserId": "AROAXYZ123456789:...",
-  "Account": "123456789012",
-  "Arn": "arn:aws:sts::123456789012:assumed-role/Jenkins-ECS-Role/..."
-}
 ```
 
 ---
@@ -1066,7 +934,7 @@ pipeline {
 
   environment {
     AWS_REGION   = 'ap-south-1'                    // Change to your region
-    AWS_ACCOUNT_ID = '123456789012'                 // Replace with your AWS account ID
+    AWS_ACCOUNT_ID = '12345678'                 // Replace with your AWS account ID
     ECR_REPO_NAME = 'my-app-repo'                    // ECR repository name
     ECR_REPO_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}"
     IMAGE_TAG    = "${BUILD_NUMBER}"
@@ -1431,40 +1299,6 @@ Click **Create**. AWS provisions the cluster (almost instantly).
 
 ---
 
-### METHOD 2: CLI IMPLEMENTATION
-
-#### Step 8.6: Define Variables
-```bash
-export AWS_REGION=ap-south-1
-export ECS_CLUSTER_NAME=my-cluster
-```
-
-#### Step 8.7: Create ECS Cluster
-```bash
-aws ecs create-cluster \
-  --cluster-name $ECS_CLUSTER_NAME \
-  --region $AWS_REGION
-```
-
-#### Step 8.8: Verify Cluster
-```bash
-aws ecs list-clusters --region $AWS_REGION
-aws ecs describe-clusters \
-  --clusters $ECS_CLUSTER_NAME \
-  --region $AWS_REGION
-```
-**Expected:** `"status": "ACTIVE"`
-
----
-
-### 🔍 What AWS Did Internally
-- Created control-plane metadata
-- **No compute resources launched yet**
-- No cost incurred until tasks run
-- Cluster ready to accept services
-
----
-
 ### ⚠️ Common Mistakes
 ❌ Confusing cluster with service  
 ❌ Expecting containers to run immediately  
@@ -1554,70 +1388,6 @@ Click **Create**.
 **Path:** ECS → Task Definitions → `my-task`
 - Revision number visible (e.g., `:1`)
 - Status: `ACTIVE`
-
----
-
-### METHOD 2: CLI IMPLEMENTATION
-
-#### Step 9.7: Define Variables
-```bash
-export AWS_REGION=ap-south-1
-export TASK_FAMILY=my-task
-export CONTAINER_NAME=my-container
-export ECR_IMAGE_URI=123456789012.dkr.ecr.ap-south-1.amazonaws.com/my-app-repo:latest
-export EXECUTION_ROLE_ARN=arn:aws:iam::123456789012:role/ecsTaskExecutionRole
-```
-
-#### Step 9.8: Create Container Definition File
-Create `container-def.json`:
-```json
-[
-  {
-    "name": "my-container",
-    "image": "123456789012.dkr.ecr.ap-south-1.amazonaws.com/my-app-repo:latest",
-    "essential": true,
-    "portMappings": [
-      {
-        "containerPort": 80,
-        "protocol": "tcp"
-      }
-    ],
-    "logConfiguration": {
-      "logDriver": "awslogs",
-      "options": {
-        "awslogs-group": "/ecs/my-task",
-        "awslogs-region": "ap-south-1",
-        "awslogs-stream-prefix": "ecs"
-      }
-    }
-  }
-]
-```
-
-#### Step 9.9: Register Task Definition
-```bash
-aws ecs register-task-definition \
-  --family $TASK_FAMILY \
-  --network-mode awsvpc \
-  --requires-compatibilities FARGATE \
-  --cpu "256" \
-  --memory "512" \
-  --execution-role-arn $EXECUTION_ROLE_ARN \
-  --container-definitions file://container-def.json \
-  --region $AWS_REGION
-```
-
-#### Step 9.10: Verify Task Definition
-```bash
-aws ecs list-task-definitions \
-  --family-prefix $TASK_FAMILY \
-  --region $AWS_REGION
-
-aws ecs describe-task-definition \
-  --task-definition $TASK_FAMILY \
-  --region $AWS_REGION
-```
-
 ---
 
 ### ⚠️ Common Mistakes
@@ -1700,46 +1470,6 @@ Click the service → **Tasks** tab
 - Container status: `RUNNING`
 
 ✅ **Confirms:** Image pulled from ECR, container running on Fargate
-
----
-
-### METHOD 2: CLI IMPLEMENTATION
-
-#### Step 10.8: Define Variables
-```bash
-export AWS_REGION=ap-south-1
-export ECS_CLUSTER=my-cluster
-export ECS_SERVICE=my-service
-export TASK_FAMILY=my-task
-export SUBNET_1=subnet-aaaaaaa
-export SUBNET_2=subnet-bbbbbbb
-export SECURITY_GROUP_ID=sg-ccccccc
-```
-
-#### Step 10.9: Create ECS Service
-```bash
-aws ecs create-service \
-  --cluster $ECS_CLUSTER \
-  --service-name $ECS_SERVICE \
-  --task-definition $TASK_FAMILY \
-  --desired-count 1 \
-  --launch-type FARGATE \
-  --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_1,$SUBNET_2],securityGroups=[$SECURITY_GROUP_ID],assignPublicIp=ENABLED}" \
-  --region $AWS_REGION
-```
-
-#### Step 10.10: Verify Service
-```bash
-aws ecs describe-services \
-  --cluster $ECS_CLUSTER \
-  --services $ECS_SERVICE \
-  --region $AWS_REGION
-```
-
-Look for:
-- `runningCount: 1`
-- `desiredCount: 1`
-- `status: "ACTIVE"`
 
 ---
 
@@ -1830,52 +1560,6 @@ Click **Create load balancer**.
 
 ---
 
-### METHOD 2: CLI IMPLEMENTATION
-
-#### Step 11.8: Define Variables
-```bash
-export AWS_REGION=ap-south-1
-export VPC_ID=vpc-aaaaaaa
-export SUBNET_1=subnet-bbbbbbb
-export SUBNET_2=subnet-ccccccc
-export ALB_SG=sg-xxxxxxx
-```
-
-#### Step 11.9: Create Security Group
-```bash
-aws ec2 create-security-group \
-  --group-name alb-sg \
-  --description "ALB Security Group" \
-  --vpc-id $VPC_ID
-
-aws ec2 authorize-security-group-ingress \
-  --group-name alb-sg \
-  --protocol tcp \
-  --port 80 \
-  --cidr 0.0.0.0/0
-```
-
-#### Step 11.10: Create Load Balancer
-```bash
-aws elbv2 create-load-balancer \
-  --name my-alb \
-  --subnets $SUBNET_1 $SUBNET_2 \
-  --security-groups $ALB_SG \
-  --scheme internet-facing \
-  --type application \
-  --ip-address-type ipv4 \
-  --region $AWS_REGION
-```
-
-#### Step 11.11: Verify Load Balancer
-```bash
-aws elbv2 describe-load-balancers \
-  --names my-alb \
-  --region $AWS_REGION
-```
-
----
-
 ### ⚠️ Common Mistakes
 ❌ Using Network Load Balancer instead of ALB  
 ❌ Selecting only one subnet (not HA)  
@@ -1945,37 +1629,6 @@ Click **Create target group**.
 **Path:** EC2 → Target Groups → `my-target-group`
 - Targets: `0` (expected – not yet attached)
 - Health checks: Configured
-
----
-
-### METHOD 2: CLI IMPLEMENTATION
-
-#### Step 12.8: Define Variables
-```bash
-export AWS_REGION=ap-south-1
-export VPC_ID=vpc-aaaaaaa
-export TARGET_GROUP_NAME=my-target-group
-```
-
-#### Step 12.9: Create Target Group
-```bash
-aws elbv2 create-target-group \
-  --name $TARGET_GROUP_NAME \
-  --protocol HTTP \
-  --port 80 \
-  --target-type ip \
-  --vpc-id $VPC_ID \
-  --health-check-protocol HTTP \
-  --health-check-path "/" \
-  --region $AWS_REGION
-```
-
-#### Step 12.10: Verify Target Group
-```bash
-aws elbv2 describe-target-groups \
-  --names $TARGET_GROUP_NAME \
-  --region $AWS_REGION
-```
 
 ---
 
@@ -2056,39 +1709,6 @@ http://<ALB_DNS_NAME>
 
 🎉 **Your application should load successfully!**
 
----
-
-### METHOD 2: CLI IMPLEMENTATION
-
-#### Step 13.8: Define Variables
-```bash
-export AWS_REGION=ap-south-1
-export ECS_CLUSTER=my-cluster
-export ECS_SERVICE=my-service
-export TARGET_GROUP_ARN=arn:aws:elasticloadbalancing:ap-south-1:123456789012:targetgroup/my-target-group/abcdef123456
-```
-
-#### Step 13.9: Update ECS Service with Load Balancer
-```bash
-aws ecs update-service \
-  --cluster $ECS_CLUSTER \
-  --service $ECS_SERVICE \
-  --load-balancers "targetGroupArn=$TARGET_GROUP_ARN,containerName=my-container,containerPort=80" \
-  --force-new-deployment \
-  --region $AWS_REGION
-```
-
-#### Step 13.10: Verify Service Update
-```bash
-aws ecs describe-services \
-  --cluster $ECS_CLUSTER \
-  --services $ECS_SERVICE \
-  --region $AWS_REGION
-```
-
-Check:
-- Load balancer attached
-- Running count matches desired count
 
 ---
 
@@ -2157,14 +1777,6 @@ You can now confidently explain:
 - "How do you secure AWS credentials in Jenkins?"
 - "How does ECS Fargate differ from EC2?"
 
-### 🚀 Next Steps
-Consider extending this project with:
-- **GitHub webhooks** for automatic pipeline triggers
-- **Multiple environments** (dev, staging, prod)
-- **Blue-green deployment** strategy
-- **Auto-scaling** based on CPU/memory
-- **Custom domain** with SSL/TLS (HTTPS)
-- **Infrastructure as Code** (Terraform/CloudFormation)
 
 ---
 
@@ -2199,8 +1811,4 @@ You have successfully built and deployed a **real-world, production-grade CI/CD 
 
 This is the exact architecture used by companies worldwide to deliver software reliably, securely, and efficiently.
 
-**You are now ready for DevOps, Cloud, and SRE roles!**
-
 ---
-
-> *"The only way to go fast is to go well – and automation is how we go well."* – Robert C. Martin
