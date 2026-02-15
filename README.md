@@ -258,10 +258,8 @@ This project builds a fully automated deployment pipeline that:
 
 ---
 
-## 7. High‑Level Architecture
-
-```
-![image](https://github.com/user-attachments/assets/612b1b18-7636-4d2b-aff6-cf5e971c2797)
+## Architecture Diagram
+  ![image](https://github.com/user-attachments/assets/612b1b18-7636-4d2b-aff6-cf5e971c2797)
 ```
 
 ---
