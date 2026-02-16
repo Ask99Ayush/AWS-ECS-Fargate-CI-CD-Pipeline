@@ -309,10 +309,7 @@ This project includes production-ready observability:
 * Failure simulation for validation
 
 Detailed documentation is available at:
-
-```
-./docs/monitoring-and-alerting.md
-```
+[Automated Monitoring & Logging for Deployment Issues](./docs/monitoring-and-alerting.md)
 
 ---
 
