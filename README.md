@@ -259,7 +259,7 @@ This project builds a fully automated deployment pipeline that:
 - **Why:** Production-grade traffic management
 
 ## 7. High-Level Architecture
-![Automated CI/CD Pipeline with Monitoring and Alerting using Jenkins, Docker, AWS ECS (Fargate) and ALB](./architecture_diagram/architecture_diagram.png)
+![Automated CI/CD Pipeline with Monitoring and Alerting using Jenkins, Docker, AWS ECS (Fargate) and ALB](./docs/architecture_diagram/architecture_diagram.png)
 
 
 ## 8. Internal Data & Control Flow
